@@ -63,7 +63,7 @@ print(home_events)
 # Team D @ Team C
 dataFrame = pd.read_csv('data/gameCD/2024-11-15.Team.D.@.Team.C.-.Events.csv')
 
-pkDataFrame = get_pk_events_for_game(dataFrame, 1)
+pkDataFrame = get_pk_events_for_game(dataFrame, 0)
 
 away_events = pkDataFrame[0][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
 home_events = pkDataFrame[1][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
@@ -77,7 +77,7 @@ print(home_events)
 # Team F @ Team E
 dataFrame = pd.read_csv('data/gameEF/2024-11-16.Team.F.@.Team.E.-.Events.csv')
 
-pkDataFrame = get_pk_events_for_game(dataFrame, 1)
+pkDataFrame = get_pk_events_for_game(dataFrame, 0)
 
 away_events = pkDataFrame[0][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
 home_events = pkDataFrame[1][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
