@@ -1,44 +1,89 @@
 import pandas as pd
 
-# create dataFrame from csv
+## FUNCTIONS
+
+def get_pk_events_for_game(data: pd.DataFrame, right_side_team: int) -> tuple[pd.DataFrame, pd.DataFrame]: 
+    # data: the event data for the game
+    # right_side_team: the team whose defending zone is on the right for periods 1 and 3 (0 for away team, 1 for home team)
+
+    if right_side_team: # home team on the right for p1 and p3
+        # get away penalty kill event data
+        p1a = get_pk_events_for_period(data, 1, 0, 0)
+        p2a = get_pk_events_for_period(data, 2, 0, 1)
+        p3a = get_pk_events_for_period(data, 3, 0, 0)
+        # get home penalty kill event data
+        p1h = get_pk_events_for_period(data, 1, 1, 1)
+        p2h = get_pk_events_for_period(data, 2, 1, 0)
+        p3h = get_pk_events_for_period(data, 3, 1, 1)
+    else: # away team on the right for p1 and p3
+        # get away penalty kill event data
+        p1a = get_pk_events_for_period(data, 1, 0, 1)
+        p2a = get_pk_events_for_period(data, 2, 0, 0)
+        p3a = get_pk_events_for_period(data, 3, 0, 1)
+        # get home penalty kill event data
+        p1h = get_pk_events_for_period(data, 1, 1, 0)
+        p2h = get_pk_events_for_period(data, 2, 1, 1)
+        p3h = get_pk_events_for_period(data, 3, 1, 0)
+
+
+    return (pd.concat([p1a, p2a, p3a], sort=True), pd.concat([p1h, p2h, p3h], sort=True))
+
+
+def get_pk_events_for_period(data: pd.DataFrame, period: int, team: int, side: int) -> pd.DataFrame:
+    # data: the event data for the game
+    # period: the period to get pk events for 
+    # team: the team to get pk events for (0 for away, 1 for home)
+    # side: the side that they are defending (0 for left, 1 for right)
+    if team: # home team
+        if side: # right side
+            return data[(data['Period'] == period) & (data['Home_Team_Skaters'] < data['Away_Team_Skaters']) & (data['X_Coordinate'] > 25)]
+        else: # left side
+            return data[(data['Period'] == period) & (data['Home_Team_Skaters'] < data['Away_Team_Skaters']) & (data['X_Coordinate'] < -25)]
+    else: # away team
+        if side: # right side
+            return data[(data['Period'] == period) & (data['Home_Team_Skaters'] > data['Away_Team_Skaters']) & (data['X_Coordinate'] > 25)]
+        else: # left side
+            return data[(data['Period'] == period) & (data['Home_Team_Skaters'] > data['Away_Team_Skaters']) & (data['X_Coordinate'] < -25)]
+
+
+# Team B @ Team A
 dataFrame = pd.read_csv('data/gameAB/2024-10-13.Team.B.@.Team.A.-.Events.csv')
 
-# Note: I'm currently only considering 5 on 4 powerplays, but i'll probably ensure support for 5 on 3 and 4 on 3 as well (5 on 3 will probably be seperate from the others)
+pkDataFrame = get_pk_events_for_game(dataFrame, 1)
 
-# HOME PENALTY KILL
- 
-# Period 1 (pk on right side)
+away_events = pkDataFrame[0][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
+home_events = pkDataFrame[1][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
 
-p1dfh = dataFrame[(dataFrame['Period'].isin([1])) & (dataFrame['Home_Team_Skaters'] == 4) & (dataFrame['Away_Team_Skaters'] == 5) & (dataFrame['X_Coordinate'] >= 25)]
+print("Team B @ Team A, Team B PK events")
+print(away_events)
 
-# Period 2 (pk on left side)
+print("Team B @ Team A, Team A PK events")
+print(home_events)
 
-p2dfh = dataFrame[(dataFrame['Period'].isin([2])) & (dataFrame['Home_Team_Skaters'] == 4) & (dataFrame['Away_Team_Skaters'] == 5) & (dataFrame['X_Coordinate'] <= -25)]
+# Team D @ Team C
+dataFrame = pd.read_csv('data/gameCD/2024-11-15.Team.D.@.Team.C.-.Events.csv')
 
-# Period 3 (pk on right side)
+pkDataFrame = get_pk_events_for_game(dataFrame, 1)
 
-p3dfh = dataFrame[(dataFrame['Period'].isin([3])) & (dataFrame['Home_Team_Skaters'] == 4) & (dataFrame['Away_Team_Skaters'] == 5) & (dataFrame['X_Coordinate'] >= 25)]
+away_events = pkDataFrame[0][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
+home_events = pkDataFrame[1][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
 
-# join together
+print("Team D @ Team C, Team D PK events")
+print(away_events)
 
-home_pk = pd.concat([p1dfh, p2dfh, p3dfh], sort = True)
-print(home_pk)
+print("Team D @ Team C, Team C PK events")
+print(home_events)
 
-# AWAY PENALTY KILL
- 
-# Period 1 (pk on left side)
+# Team F @ Team E
+dataFrame = pd.read_csv('data/gameEF/2024-11-16.Team.F.@.Team.E.-.Events.csv')
 
-p1dfa = dataFrame[(dataFrame['Period'].isin([1])) & (dataFrame['Home_Team_Skaters'] == 5) & (dataFrame['Away_Team_Skaters'] == 4) & (dataFrame['X_Coordinate'] <= -25)]
+pkDataFrame = get_pk_events_for_game(dataFrame, 1)
 
-# Period 2 (pk on right side)
+away_events = pkDataFrame[0][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
+home_events = pkDataFrame[1][['Period', 'Clock', 'Away_Team_Goals', 'Home_Team_Goals', 'Event', 'Team']]
 
-p2dfa = dataFrame[(dataFrame['Period'].isin([2])) & (dataFrame['Home_Team_Skaters'] == 5) & (dataFrame['Away_Team_Skaters'] == 4) & (dataFrame['X_Coordinate'] >= 25)]
+print("Team F @ Team E, Team F PK events")
+print(away_events)
 
-# Period 3 (pk on left side)
-
-p3dfa = dataFrame[(dataFrame['Period'].isin([3])) & (dataFrame['Home_Team_Skaters'] == 5) & (dataFrame['Away_Team_Skaters'] == 4) & (dataFrame['X_Coordinate'] <= -25)]
-
-# join together
-
-away_pk = pd.concat([p1dfa, p2dfa, p3dfa], sort = True)
-print(away_pk)
+print("Team F @ Team E, Team E PK events")
+print(home_events)
